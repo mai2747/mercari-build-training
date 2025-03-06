@@ -1,7 +1,8 @@
 import os
 import logging
 import pathlib
-from fastapi import FastAPI, Form, HTTPException, Depends
+import hashlib
+from fastapi import FastAPI, Form, HTTPException, Depends, UploadFile, File
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
@@ -62,24 +63,52 @@ def hello():
     return HelloResponse(**{"message": "Hello, world!"})
 
 
+# Step 4-3 - Getting data from json file
+@app.get("/items")
+def get_items():
+    if os.path.exists("items.json"):
+        try:
+            with open("items.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data
+        except json.JSONDecodeError:
+            return {"items": []}
+    else:
+        return {"items": []}
+
+
 class AddItemResponse(BaseModel):
     message: str
 
 
 # add_item is a handler to add a new item for POST /items .
 @app.post("/items", response_model=AddItemResponse)
-def add_item(
+async def add_item(
     name: str = Form(...),
     category: str = Form(...),
+    image: UploadFile = File(...),
     db: sqlite3.Connection = Depends(get_db),
 ):
-    # Reject if name or category is empty or whitespace only 
+    # Reject if name or category is empty or whitespace  only 
     # (Accept name with numbers only since it could exist...)
     if not name.strip() or not category.strip():
         raise HTTPException(status_code=400, detail="name and category cannot be empty")
+    
+    if not image.filename.endswith(".jpg"):
+        raise HTTPException(status_code=400, detail="image name must be end with .jpg")
+    
+     # ハッシュ化
+    image_data = await image.read()
+    image_hash = hashlib.sha256(image_data).hexdigest()
+    image_filename = f"{image_hash}.jpg"
 
-    insert_item(Item(name=name, category=category))
-    return AddItemResponse(**{"message": f"item received: {name}, Category: {category}"})
+    image_path = os.path.join("images", image_filename)
+
+    with open(image_path, "wb") as f:
+        f.write(image_data)
+
+    insert_item(Item(name=name, category=category, image_filename=image_filename))
+    return AddItemResponse(**{"message": f"item received: {name}, Category: {category}, image_name: {image_filename}"})
 
 
 # get_image is a handler to return an image for GET /images/{filename} .
@@ -101,6 +130,7 @@ async def get_image(image_name):
 class Item(BaseModel):
     name: str
     category: str
+    image_filename: str
 
 
 def insert_item(item: Item):
@@ -119,4 +149,4 @@ def insert_item(item: Item):
     data["items"].append(item.dict())
 
     with open("items.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=4)    
