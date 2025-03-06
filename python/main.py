@@ -76,6 +76,28 @@ def get_items():
     else:
         return {"items": []}
 
+# Step 4-5: Get item data from chosen index
+@app.get("/items/{item_id}")
+def get_chosen_id_item(item_id:int):
+    if os.path.exists("items.json"):
+        try:
+            with open("items.json", "r", encoding="utf-8") as f:
+                items = json.load(f)
+            
+        except json.JSONDecodeError:
+            items = {"items": []}
+    else:
+        return {"items": []}
+    
+    if item_id <= 0 or item_id > len(items["items"]):
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    item = items["items"][item_id - 1]
+    if "image_filename" not in item:
+        item["image_filename"] = "default.jpg"
+
+    return item
+
 
 class AddItemResponse(BaseModel):
     message: str
