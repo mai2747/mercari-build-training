@@ -5,6 +5,7 @@ from fastapi import FastAPI, Form, HTTPException, Depends
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
+import json
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 
@@ -69,13 +70,16 @@ class AddItemResponse(BaseModel):
 @app.post("/items", response_model=AddItemResponse)
 def add_item(
     name: str = Form(...),
+    category: str = Form(...),
     db: sqlite3.Connection = Depends(get_db),
 ):
-    if not name:
-        raise HTTPException(status_code=400, detail="name is required")
+    # Reject if name or category is empty or whitespace only 
+    # (Accept name with numbers only since it could exist...)
+    if not name.strip() or not category.strip():
+        raise HTTPException(status_code=400, detail="name and category cannot be empty")
 
-    insert_item(Item(name=name))
-    return AddItemResponse(**{"message": f"item received: {name}"})
+    insert_item(Item(name=name, category=category))
+    return AddItemResponse(**{"message": f"item received: {name}, Category: {category}"})
 
 
 # get_image is a handler to return an image for GET /images/{filename} .
@@ -96,8 +100,23 @@ async def get_image(image_name):
 
 class Item(BaseModel):
     name: str
+    category: str
 
 
 def insert_item(item: Item):
     # STEP 4-2: add an implementation to store an item
-    pass
+
+    # Load file if it exists and can be open, otherwise create file data (list)
+    if os.path.exists("items.json"):
+        try:
+            with open("items.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = {"items": []}
+    else:
+        data = {"items": []}
+
+    data["items"].append(item.dict())
+
+    with open("items.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
