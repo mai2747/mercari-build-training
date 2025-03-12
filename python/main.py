@@ -165,10 +165,10 @@ def get_chosen_items(keyword: str, db: sqlite3.Connection = Depends(get_db)):
 
     try:
         cursor.execute("""
-                        SELECT items.id, items.name, categories.name AS category, items.image_filename
+                        SELECT items.name, categories.name AS category, items.image_filename
                         FROM items
-                        WHERE items.name LIKE ?
                         JOIN categories ON items.category_id = categories.id
+                        WHERE items.name LIKE ?                        
                         """, (f"%{keyword}%",))
         items = cursor.fetchall()
 
