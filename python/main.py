@@ -82,6 +82,7 @@ SELECT_ITEMS_QUERY = """
 
 @app.get("/items")
 def get_items(db: sqlite3.Connection = Depends(get_db)):
+    logger.info("Getting items indatabase")
     cursor = db.cursor()
     cursor.execute(SELECT_ITEMS_QUERY)
     items = cursor.fetchall()
@@ -108,7 +109,7 @@ def get_items():
 # Step 5-1: 
 @app.get("/items/{item_id}")
 def get_chosen_id_item(item_id:int, db: sqlite3.Connection = Depends(get_db)):
-    logger.info(f"Search item with id {item_id}")
+    logger.info(f"Searching item with id {item_id}")
     cursor = db.cursor()
 
     cursor.execute(SELECT_ITEMS_QUERY)
@@ -227,7 +228,7 @@ async def add_item(
         f.write(image_data)
 
     insert_item(Item(name=name, category=category, image_filename=image_filename), db)
-    logger.info(f"Item added to items.json: {name} in category {category} with image {image_filename}")
+    logger.info(f"Item added to database: {name} in category {category} with image {image_filename}")
 
     return AddItemResponse(**{"message": f"item received: {name}, Category: {category}, image_name: {image_filename}"})
 
@@ -265,6 +266,7 @@ def insert_item(item: Item, db: sqlite3.Connection):
     category_row = cursor.fetchone()
 
     if category_row is None:
+        logger.info(f"Adding newe category: {category_row}")
         cursor.execute("INSERT INTO categories(name) VALUES (?);", (item.category,))
         db.commit()
 
