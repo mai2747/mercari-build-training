@@ -158,13 +158,18 @@ def get_chosen_id_item(item_id:int):
 """
 # Step 5-2: Get items containing specified keyword in name
 @app.get("/search")
-def get_chosen_item(keyword: str, db: sqlite3.Connection = Depends(get_db)):
+def get_chosen_items(keyword: str, db: sqlite3.Connection = Depends(get_db)):
     logger.info(f"Search keyword received: {keyword}")
 
     cursor = db.cursor()
 
     try:
-        cursor.execute(SELECT_ITEMS_QUERY)
+        cursor.execute("""
+                        SELECT items.id, items.name, categories.name AS category, items.image_filename
+                        FROM items
+                        WHERE items.name LIKE ?
+                        JOIN categories ON items.category_id = categories.id
+                        """, (f"%{keyword}%",))
         items = cursor.fetchall()
 
     except sqlite3.OperationalError as e:
