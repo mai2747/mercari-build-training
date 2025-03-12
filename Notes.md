@@ -57,6 +57,8 @@ sqlite3.connect(db, check_same_thread=False)
 ```
 - `check_same_thread=False` ... 異なるスレッドからも接続を使えるようにする。もともと、SQLiteはデフォルトで、同じスレッドからのみデータベース接続を使用することを要求する。今回はエラー回避用に使ったけれど、根本解決する方法はあるのだろうか…。
 
+&rarr; &rarr; &rarr; MySQLやPostgreSQLでは複数スレッドや複数プロセスからの同時接続を前提に設計されているから、それらを使用する際は問題にならないそう。
+
 ```
 pathlib.Path(__file__).parent.resolve()
 ```
