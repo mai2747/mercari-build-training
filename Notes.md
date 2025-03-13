@@ -57,6 +57,8 @@ sqlite3.connect(db, check_same_thread=False)
 ```
 - `check_same_thread=False` ... 異なるスレッドからも接続を使えるようにする。もともと、SQLiteはデフォルトで、同じスレッドからのみデータベース接続を使用することを要求する。今回はエラー回避用に使ったけれど、根本解決する方法はあるのだろうか…。
 
+&rarr; &rarr; &rarr; MySQLやPostgreSQLでは複数スレッドや複数プロセスからの同時接続を前提に設計されているから、それらを使用する際は問題にならないそう。
+
 ```
 pathlib.Path(__file__).parent.resolve()
 ```
@@ -65,4 +67,6 @@ pathlib.Path(__file__).parent.resolve()
 - `resolve()` ... 絶対パスに変換する。
 
 [ref:\
-[sqlite3 基本コマンドたち](https://qiita.com/saira/items/e08c8849cea6c3b5eb0c)]
+[sqlite3 基本コマンドたち](https://qiita.com/saira/items/e08c8849cea6c3b5eb0c)\
+[resolve() & absolute()](https://discuss.python.org/t/pathlib-absolute-vs-resolve/2573/3)\
+[sqlite3/ check_same_thread=False](https://docs.python.org/3/library/sqlite3.html#:~:text=check_same_thread%20(bool)%20%E2%80%93%20If%20True,user%20to%20avoid%20data%20corruption.)]
