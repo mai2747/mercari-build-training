@@ -5,8 +5,6 @@ import sqlite3
 import os
 import pathlib
 from io import BytesIO
-import io
-from fastapi import UploadFile
 
 #STEP 6-4: uncomment this test setup
 test_db = pathlib.Path(__file__).parent.resolve() / "db" / "test_mercari.sqlite3"
@@ -56,12 +54,6 @@ def db_connection():
 
 client = TestClient(app)
 
-def get_mock_image_file():
-    image_content = b"fake_image_content"
-    return UploadFile(
-        filename="test_image.jpg",
-        file=BytesIO(image_content)
-    )
 
 @pytest.mark.parametrize(
     "want_status_code, want_body",
@@ -85,7 +77,7 @@ def test_hello(want_status_code, want_body):
 )
 def test_add_item_e2e(args,want_status_code,db_connection):
 
-    dummy_image = ("dummy.jpg", io.BytesIO(b"dummyimage"), "image/jpeg") # Indicate MIME type in thee third element
+    dummy_image = ("dummy.jpg", BytesIO(b"dummyimage"), "image/jpeg") # Indicate MIME type in thee third element
 
     response = client.post("/items/", data=args, files={"image": dummy_image}) # Send a request
     
