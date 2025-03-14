@@ -123,7 +123,7 @@ def get_chosen_id_item(item_id:int, db: sqlite3.Connection = Depends(get_db)):
     item_dict = dict(item)
 
     if not item_dict.get("image_filename"):
-        item_dict["image_filename"] = "default.jpg"
+        item_dict["image_filename"] = "dummy.jpg"
 
     logger.info("Found item in the id")
 
@@ -152,7 +152,7 @@ def get_chosen_id_item(item_id:int):
     
     item = items["items"][item_id - 1]
     if "image_filename" not in item:
-        item["image_filename"] = "default.jpg"
+        item["image_filename"] = "dummy.jpg"
 
     return item
 """
@@ -189,7 +189,7 @@ def get_chosen_items(keyword: str, db: sqlite3.Connection = Depends(get_db)):
     for item in items:
         item_dict = dict(item)
         if not item_dict.get("image_filename"):
-            item_dict["image_filename"] = "default.jpg"
+            item_dict["image_filename"] = "dummy.jpg"
         items_list.append(item_dict)
 
     logger.info(f"Found {len(items_list)} items matching keyword.")
@@ -250,7 +250,7 @@ async def get_image(image_name):
 
     if not image.exists():
         logger.debug(f"Image not found: {image}")
-        image = images / "default.jpg"
+        image = images / "dummy.jpg"
 
     return FileResponse(image)
 
