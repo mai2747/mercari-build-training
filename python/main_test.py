@@ -96,4 +96,15 @@ def test_add_item_e2e(args,want_status_code,db_connection):
     cursor.execute("SELECT * FROM items WHERE name = ?", (args["name"],))
     db_item = cursor.fetchone()
     assert db_item is not None
-    assert dict(db_item)["name"] == args["name"]
+
+    db_item_dict = dict(db_item)
+
+    assert db_item_dict["name"] == args["name"]
+
+    cursor.execute("SELECT id FROM categories WHERE name = ?", (args["category"],))
+    category = cursor.fetchone()
+    assert category is not None
+    assert db_item_dict["category_id"] == category["id"]
+
+    assert db_item_dict["image_filename"] is not None, "image_filename should not be empty"
+    assert db_item_dict["image_filename"].endswith(".jpg"), "image_filename should have a .jpg extension"
