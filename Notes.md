@@ -116,7 +116,31 @@ $ docker run -d -p 9000:9000 mercari-build-training/app:latest
 ```
 &uarr; いけた！！
 
+```
+RUN apk update && apk add --no-cache gcc musl-dev
+```
+- `apk` ... Alpine Linux のパッケージマネージャー
+- `--no-cache` ... 言葉通り。イメージの容量を減らせるみたい。
+- `gcc` ... Pythonの依存パッケージをビルドするときに必要
+- `musl-dev` ... コンパイルに必要な開発ヘッダーが入っている\
+インストールしたパッケージで動きはするものの、はて余分なものまでインストールしてしまっているのやら。
 
+```
+RUN addgroup -S mercari && adduser -S trainee -G mercari
+```
+- `addgroup -S` ... System Group / mercariの名でグループを作っている。
+- `adduser -S trainee -G mercari` ... System User / traineeの名でシステムユーザーを作って、そのユーザーをmercariグループに所属させている。\
+root userのままで動かすより、一般ユーザーとして動かすことでリスクを減らす。やらかさない。
+
+```
+RUN chown -R trainee:mercari /app
+```
+- `chown` ... change owner / ファイルやディレクトリの所有者とグループを変更。
+- `-R` ... recurseve / 現ディレクトリ内のすべてのファイルとディレクトリに適用する。
+- `trainee:mercari` ... 所有者をtrainee、グループをmercariに設定。
+- `/app` ... 変更対象のフォルダ
+
+  
 ### Step 8
 CI / Continuous Integration / 継続的インテグレーション
 ... ソフトウェアの開発においてコードを頻繁に共有リポジトリにコミットする手法のこと。[(GitHub Docksより)](https://docs.github.com/ja/actions/about-github-actions/about-continuous-integration-with-github-actions) 自動的にビルドやテストを行う。
