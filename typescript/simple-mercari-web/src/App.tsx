@@ -14,14 +14,14 @@ function App() {
         </p>
       </header>
       <hr className="divider"/>
-      {/* <div className="MainContainer"> */}
+      <div className="MainContainer">
         <div>
           <Listing onListingCompleted={() => setReload(true)} />
         </div>
         <div>
           <ItemList reload={reload} onLoadCompleted={() => setReload(false)} />
         </div>
-      {/* </div> */}
+      </div>
     </div>
   );
 }
