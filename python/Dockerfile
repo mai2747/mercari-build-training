@@ -22,4 +22,4 @@ RUN chown -R trainee:mercari /app
 USER trainee
 
 # command to execute when build this container
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
