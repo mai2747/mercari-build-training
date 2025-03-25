@@ -73,18 +73,16 @@ def hello():
 
 json_file = "items.json"
 # Declare as variable to use in multile methods
-SELECT_ITEMS_QUERY = """
-                    SELECT items.id, items.name, categories.name AS category, items.image_filename
-                    FROM items
-                    JOIN categories ON items.category_id = categories.id
-                    """
-
 
 @app.get("/items")
 def get_items(db: sqlite3.Connection = Depends(get_db)):
     logger.info("Getting items indatabase")
     cursor = db.cursor()
-    cursor.execute(SELECT_ITEMS_QUERY)
+    cursor.execute("""
+                    SELECT items.id, items.name, categories.name AS category, items.image_filename
+                    FROM items
+                    JOIN categories ON items.category_id = categories.id
+                    """)
     items = cursor.fetchall()
 
     items_list = [{"id": id_, "name": name, "category": category, "image_filename": image_filename} for id_, name, category, image_filename in items]
@@ -112,7 +110,12 @@ def get_chosen_id_item(item_id:int, db: sqlite3.Connection = Depends(get_db)):
     logger.info(f"Searching item with id {item_id}")
     cursor = db.cursor()
 
-    cursor.execute(SELECT_ITEMS_QUERY)
+    cursor.execute("""
+                    SELECT items.id, items.name, categories.name AS category, items.image_filename
+                    FROM items
+                    JOIN categories ON items.category_id = categories.id
+                    WHERE items.id = ?
+                    """, (item_id,))
 
     item = cursor.fetchone()
 
