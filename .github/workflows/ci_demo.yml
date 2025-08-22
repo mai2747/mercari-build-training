@@ -2,7 +2,7 @@ name: CI Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions / CI
 on:
     pull_request:
-        branches: [ 'mai2747_test' ]
+        branches: [ '**' ] #[ 'mai2747_test' ]
         paths: [ '**' ]  # 他のファイルも対象にするべき？ -> 一旦このまま -> 前ファイル対象でテスト
 jobs:
   # ダミーコメントを投稿するjobを設定する、とりあえず動くところを見てから進みたい
